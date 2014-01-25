@@ -19,9 +19,19 @@ OhMyCall::Application.routes.draw do
   scope :constraints => ApiSubdomainConstraint.new do
     scope :module => :api, :as => :api, :defaults => { format: 'json' } do
       scope :module => :v1, constraints: ApiConstraints.new(version: 1, default: true) do
-        match "*path" => "base#noop", via: [:get, :post]
+
+        resources :people
+        resources :situations do
+          resources :occurances, :only => [:index, :show]
+          resource :call_list do
+            delete ':phone_number' => "call_lists#destroy"
+          end
+        end
+
+        match "trigger/:id" => "triggers#create", via: [:get, :post]
 
         root :to => redirect('http://www.ohmycall.com')
+        match "*path" => "base#noop", via: [:get, :post]
       end
     end
   end

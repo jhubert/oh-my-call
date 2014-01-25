@@ -21,3 +21,8 @@ module OhMyCall
     # config.i18n.default_locale = :de
   end
 end
+
+module Api
+  module V1
+  end
+end
