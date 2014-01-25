@@ -16,6 +16,8 @@ class ApiSubdomainConstraint
 end
 
 OhMyCall::Application.routes.draw do
+  use_doorkeeper
+
   scope :constraints => ApiSubdomainConstraint.new do
     scope :module => :api, :as => :api, :defaults => { format: 'json' } do
       scope :module => :v1, constraints: ApiConstraints.new(version: 1, default: true) do
