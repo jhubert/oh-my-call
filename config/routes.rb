@@ -33,6 +33,8 @@ OhMyCall::Application.routes.draw do
 
         match "trigger/:id" => "triggers#create", via: [:get, :post]
 
+        get "me" => "credentials#me"
+
         root :to => redirect('http://www.ohmycall.com')
         match "*path" => "base#noop", via: [:get, :post]
       end

@@ -13,6 +13,10 @@ class ApiRoutesTest < ActionDispatch::IntegrationTest
     }
   end
 
+  test "me route" do
+    assert_routing({ method: 'get', path: endpoint("/me") }, {controller: "api/v1/credentials", action: "me", format: "json" })
+  end
+
   test "people routes" do
     assert_rest_endpoints('people')
   end
