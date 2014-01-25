@@ -43,8 +43,8 @@ end
 # Use doorkeeper for OAuth2 provider
 gem 'doorkeeper'
 
-# Use ActiveModel has_secure_password
-# gem 'bcrypt-ruby', '~> 3.1.2'
+# Use devise for user authentication
+gem 'devise'
 
 # Use unicorn as the app server
 # gem 'unicorn'

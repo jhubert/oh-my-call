@@ -37,4 +37,6 @@ OhMyCall::Application.routes.draw do
       end
     end
   end
+
+  root :to => redirect('http://www.ohmycall.com')
 end
