@@ -1,0 +1,29 @@
+# SQLite version 3.x
+#   gem install sqlite3
+#
+#   Ensure the SQLite 3 gem is defined in your Gemfile
+#   gem 'sqlite3'
+common: &common
+  adapter: postgresql
+  host: localhost
+  port: <%= ENV["BOXEN_POSTGRESQL_PORT"] || 5432 %>
+  min_messages: WARNING  # this line silences those NOTICE messages
+  username:
+  password:  # from psql setup, see Postgresql
+  timeout: 5000
+
+development:
+  <<: *common
+  database: oh_my_call_development
+
+test:
+  <<: *common
+  database: oh_my_call_test
+
+staging:
+  <<: *common
+  database: oh_my_call_production
+
+production:
+  <<: *common
+  database: oh_my_call_production
