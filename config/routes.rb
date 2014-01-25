@@ -17,6 +17,7 @@ end
 
 OhMyCall::Application.routes.draw do
   use_doorkeeper
+  devise_for :users
 
   scope :constraints => ApiSubdomainConstraint.new do
     scope :module => :api, :as => :api, :defaults => { format: 'json' } do
