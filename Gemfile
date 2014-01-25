@@ -32,6 +32,10 @@ group :doc do
   gem 'sdoc', require: false
 end
 
+group :development do
+  gem 'spring'
+end
+
 group :development, :test do
   gem 'guard'
   gem 'guard-minitest'

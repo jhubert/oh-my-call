@@ -1,5 +1,5 @@
 
-guard :minitest, all_on_start: false, all_after_pass: false do
+guard :minitest, all_on_start: false, all_after_pass: false, spring: 'rake test' do
   watch(%r{^app/(.+)\.rb$})                               { |m| "test/#{m[1]}_test.rb" }
   watch(%r{^app/controllers/application_controller\.rb$}) { 'test/controllers' }
   watch(%r{^app/controllers/(.+)_controller\.rb$})        { |m| "test/integration/#{m[1]}_test.rb" }
