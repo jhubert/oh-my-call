@@ -40,6 +40,10 @@ group :development, :test do
   gem 'simplecov'
 end
 
+group :test do
+  gem "mocha", "~> 1.0.0"
+end
+
 # Use doorkeeper for OAuth2 provider
 gem 'doorkeeper'
 
