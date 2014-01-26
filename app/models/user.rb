@@ -1,3 +1,5 @@
+# The individual who configures and controls the application. The bulk
+# of the authentication is handled by Devise.
 class User < ActiveRecord::Base
   # Include default devise modules. Others available are:
   # :timeoutable and :omniauthable

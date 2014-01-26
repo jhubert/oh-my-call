@@ -1,8 +1,10 @@
+# rubocop:disable LineLength
+
 OhMyCall::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Set the base URL for all URLs
-  config.action_mailer.default_url_options = { :host => 'ohmycall.dev' }
+  config.action_mailer.default_url_options = { host: 'ohmycall.dev' }
 
   # In the development environment your application's code is reloaded on
   # every request. This slows down response time but is perfect for development

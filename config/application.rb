@@ -1,3 +1,5 @@
+# rubocop:disable LineLength
+
 require File.expand_path('../boot', __FILE__)
 
 require 'rails/all'
@@ -24,7 +26,9 @@ module OhMyCall
   end
 end
 
+# The API namespace
 module Api
+  # Namespace for version 1 of the API
   module V1
   end
 end

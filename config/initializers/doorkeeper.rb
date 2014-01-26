@@ -1,3 +1,5 @@
+# rubocop:disable LineLength
+
 Doorkeeper.configure do
   # Change the ORM that doorkeeper will use.
   # Currently supported options are :active_record, :mongoid2, :mongoid3, :mongo_mapper
@@ -64,6 +66,6 @@ Doorkeeper.configure do
   #   client.superapp? or resource_owner.admin?
   # end
 
-  # WWW-Authenticate Realm (default "Doorkeeper").
+  # WWW-Authenticate Realm (default "Doorkeeper").
   # realm "Doorkeeper"
 end

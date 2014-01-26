@@ -1,0 +1,23 @@
+AllCops:
+  Includes:
+    - Rakefile
+    - config.ru
+  Excludes:
+    - bin/*
+    - db/**
+    - script/**
+
+  RunRailsCops: true
+
+# Offence count: 44
+Encoding:
+  Enabled: false
+
+# Offence count: 99
+LineLength:
+  Max: 79
+
+# Offence count: 2
+# Configuration parameters: CountComments.
+MethodLength:
+  Max: 10
