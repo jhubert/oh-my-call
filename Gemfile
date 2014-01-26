@@ -33,18 +33,22 @@ group :doc do
 end
 
 group :development do
+  # Spring speeds up rails and rake tasks by caching a version of the app
   gem 'spring'
+
+  # Guard automatically runs when files are changed
+  gem 'guard'
+  gem 'guard-minitest'
+  gem 'guard-rubocop'
 end
 
 group :development, :test do
-  gem 'guard'
-  gem 'guard-minitest'
-
-    # for coverage
+  # for coverage
   gem 'simplecov'
 end
 
 group :test do
+  # Mocha is a mock and stub library
   gem "mocha", "~> 1.0.0"
 end
 
