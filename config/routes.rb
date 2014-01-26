@@ -31,7 +31,7 @@ OhMyCall::Application.routes.draw do
           end
         end
 
-        match "trigger/:id" => "triggers#create", via: [:get, :post]
+        match "trigger/:token" => "triggers#create", via: [:get, :post]
 
         get "me" => "credentials#me"
 

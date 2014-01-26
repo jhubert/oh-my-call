@@ -38,8 +38,8 @@ class ApiRoutesTest < ActionDispatch::IntegrationTest
   end
 
   test "trigger routes" do
-    assert_routing({ method: 'get', path: endpoint("/trigger/key") }, {controller: "api/v1/triggers", action: "create", format: "json", id: "key" })
-    assert_routing({ method: 'post', path: endpoint("/trigger/key") }, {controller: "api/v1/triggers", action: "create", format: "json", id: "key" })
+    assert_routing({ method: 'get', path: endpoint("/trigger/key") }, {controller: "api/v1/triggers", action: "create", format: "json", token: "key" })
+    assert_routing({ method: 'post', path: endpoint("/trigger/key") }, {controller: "api/v1/triggers", action: "create", format: "json", token: "key" })
   end
 
   private
