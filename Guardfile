@@ -10,6 +10,6 @@ guard :minitest, all_on_start: false, all_after_pass: false, spring: 'rake test'
 end
 
 guard :rubocop do
-  watch(%r{.+\.rb$})
+  watch(%r{^(app|lib|config|test)/(.+)\.rb$})
   watch(%r{(?:.+/)?\.rubocop\.yml$}) { |m| File.dirname(m[0]) }
 end
