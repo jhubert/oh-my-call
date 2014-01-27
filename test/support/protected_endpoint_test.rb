@@ -12,7 +12,7 @@ module ProtectedEndpointTest
 
   private
 
-  def perform_request
-    send(@method || :get, @action_name, @base_params || {})
+  def perform_request(params = @base_params)
+    send(@method || :get, @action_name, params)
   end
 end
