@@ -8,12 +8,42 @@ class Api::V1::PeopleController::IndexTest < ActionController::TestCase
     @request.env['HTTP_ACCEPT'] = 'application/json'
   end
 
-  test 'returns an array of people' do
+  test 'returns an array' do
     api_login_user
     perform_request
 
-    assert Array, JSON.parse(response.body).class
-    assert response.body.include? Person.first.to_json
+    body = JSON.parse(response.body)
+    assert Array, body.class
+  end
+
+  test 'array contains two people' do
+    api_login_user
+    perform_request
+
+    body = JSON.parse(response.body)
+    assert_equal 2, body.count
+  end
+
+  test 'renders the index template' do
+    api_login_user
+    perform_request
+
+    assert_template 'api/v1/people/index'
+  end
+
+  test 'renders the expected keys' do
+    api_login_user
+    perform_request
+
+    expected_keys = %w(
+      id phone_number fullname nickname active created_at updated_at
+      url response_count call_count situations
+    )
+
+    body = JSON.parse(response.body)
+    body.each do |person|
+      assert_equal expected_keys, person.keys
+    end
   end
 end
 
@@ -67,26 +97,28 @@ class Api::V1::PeopleController::CreateTest < ActionController::TestCase
     @method = :post
     @action_name = :create
     @request.env['HTTP_ACCEPT'] = 'application/json'
+
+    @base_params = { phone_number: '5555551234' }
   end
 
   test 'creates a new person' do
     api_login_user
 
     assert_difference 'Person.count' do
-      post :create, {}
+      post :create, @base_params
     end
   end
 
   test 'renders the show template' do
     api_login_user
-    post :create, {}
+    post :create, @base_params
 
     assert_template 'api/v1/people/show'
   end
 
   test 'response includes the expected keys' do
     api_login_user
-    post :create, {}
+    post :create, @base_params
 
     expected_keys = %w(
       id phone_number fullname nickname active created_at updated_at
@@ -97,10 +129,18 @@ class Api::V1::PeopleController::CreateTest < ActionController::TestCase
 
   test 'returns the details of the new person' do
     api_login_user
-    post :create, {}
+    post :create, @base_params
 
     person = JSON.parse(response.body)
     assert_equal Person.last.id, person['id']
+  end
+
+  test 'returns 422 if the phone number already exists' do
+    people(:one).update_attribute(:phone_number, @base_params[:phone_number])
+
+    api_login_user
+    post :create, @base_params
+    assert_response :unprocessable_entity
   end
 end
 
@@ -108,16 +148,24 @@ class Api::V1::PeopleController::UpdateTest < ActionController::TestCase
   include ProtectedEndpointTest
 
   def setup
+    @user = people(:one)
     @method = :put
     @action_name = :update
-    @base_params = { id: people(:one).id }
+    @base_params = { id: @user.id }
+    @success_response = :no_content
     @request.env['HTTP_ACCEPT'] = 'application/json'
   end
 
   test 'updates an existing person' do
     api_login_user
-    put :update, id: people(:one).id, phone_number: '5555551234'
-    assert_equal '5555551234', Person.find(people(:one).id).phone_number
+    put :update, id: @user.id, phone_number: '5555551234'
+    assert_equal '5555551234', Person.find(@user.id).phone_number
+  end
+
+  test 'returns a 204 no_content response on success' do
+    api_login_user
+    put :update, id: @user.id, phone_number: '5555551234'
+    assert_response :no_content
   end
 
   test 'returns 404 if the person is not found' do

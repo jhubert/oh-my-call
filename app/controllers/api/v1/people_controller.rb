@@ -10,7 +10,8 @@ class Api::V1::PeopleController < Api::V1::BaseController
   respond_to :json
 
   def index
-    render json: Person.all.to_json
+    @people = Person.all
+    respond_with :api, @people
   end
 
   def show
