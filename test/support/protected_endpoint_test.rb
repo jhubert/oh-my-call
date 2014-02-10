@@ -4,7 +4,7 @@ module ProtectedEndpointTest
     assert_response :unauthorized
   end
 
-  def test_should_return_200_if_authenticated
+  def test_should_allow_access_if_authenticated
     api_login_user
     perform_request
     assert_response @success_response || :success

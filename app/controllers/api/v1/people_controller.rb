@@ -10,29 +10,27 @@ class Api::V1::PeopleController < Api::V1::BaseController
   respond_to :json
 
   def index
-    @people = Person.all
+    @people = current_user.people.load
     respond_with :api, @people
   end
 
   def show
-    @person = Person.find(params[:id])
+    @person = current_user.people.find(params[:id])
     respond_with :api, @person
   end
 
   def create
-    @person = Person.create(people_params)
+    @person = current_user.people.create(people_params)
     respond_with :api, @person, template: 'api/v1/people/show'
   end
 
   def update
-    Person.find(params[:id]).update_attributes(people_params)
-
+    current_user.people.find(params[:id]).update_attributes(people_params)
     head :no_content
   end
 
   def destroy
-    Person.destroy(params[:id])
-
+    current_user.people.destroy(params[:id])
     head :no_content
   end
 

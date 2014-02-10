@@ -22,7 +22,7 @@ class ActionController::TestCase
   private
 
   def api_login_user
-    stubbed_token = stub(resource_owner_id: 1, accessible?: true)
+    stubbed_token = stub(resource_owner_id: users(:john).id, accessible?: true)
     @controller.stubs(:doorkeeper_token).returns(stubbed_token)
   end
 end

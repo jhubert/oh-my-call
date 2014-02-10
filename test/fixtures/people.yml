@@ -1,10 +1,11 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
+valid:
   phone_number: MyString
   fullname: MyString
   nickname: MyString
   active: false
+  user: john
 
 two:
   phone_number: MyString

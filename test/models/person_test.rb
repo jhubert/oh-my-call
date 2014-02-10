@@ -8,7 +8,7 @@ class PersonTest < ActiveSupport::TestCase
   end
 
   test 'phone_number must be unique' do
-    p2 = Person.create(phone_number: people(:one).phone_number)
+    p2 = Person.create(phone_number: people(:valid).phone_number)
     refute p2.valid?
     refute p2.errors[:phone_number].nil?
   end
