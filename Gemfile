@@ -58,6 +58,9 @@ gem 'doorkeeper'
 # Use devise for user authentication
 gem 'devise'
 
+# Normalize phone numbers
+gem 'phony'
+
 # Use unicorn as the app server
 # gem 'unicorn'
 

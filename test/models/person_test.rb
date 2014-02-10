@@ -16,4 +16,16 @@ class PersonTest < ActiveSupport::TestCase
   test 'active defaults to true' do
     assert Person.new.active?, 'Active should be true by default'
   end
+
+  test 'normalizes a phone_number before create' do
+    p = Person.create(phone_number: '1 (703) 451-5115')
+    assert_equal '17034515115', p.phone_number
+  end
+
+  test 'normalizes a phone_number before update' do
+    p = people(:valid)
+    p.phone_number = '1 (703) 451-5115'
+    p.save
+    assert_equal '17034515115', p.phone_number
+  end
 end
