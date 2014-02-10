@@ -5,42 +5,19 @@
 #
 # Routes tests are handled in test/integration/routes_test.rb
 class Api::V1::PeopleController < Api::V1::BaseController
-  rescue_from ActiveRecord::RecordNotFound, with: :handle_not_found
+  include StandardApiResource
+  before_filter :set_instance_from_params, except: %w(index create)
 
-  respond_to :json
-
-  def index
-    @people = current_user.people.load
-    respond_with :api, @people
-  end
-
-  def show
-    @person = current_user.people.find(params[:id])
-    respond_with :api, @person
-  end
-
-  def create
-    @person = current_user.people.create(people_params)
-    respond_with :api, @person, template: 'api/v1/people/show'
-  end
-
-  def update
-    current_user.people.find(params[:id]).update_attributes(people_params)
-    head :no_content
-  end
-
-  def destroy
-    current_user.people.destroy(params[:id])
-    head :no_content
-  end
+  # The following methods are provided by the StandardApiResource module:
+  # index, show, create, update, destroy
 
   private
 
-  def people_params
-    params.permit(%w(phone_number fullname nickname active))
+  def resource
+    current_user.people
   end
 
-  def handle_not_found
-    head :not_found
+  def permitted_params
+    params.permit(%w(phone_number fullname nickname active))
   end
 end

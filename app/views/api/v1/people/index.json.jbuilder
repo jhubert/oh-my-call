@@ -1,4 +1,4 @@
-json.array! @people do |person|
+json.array! @collection do |person|
   json.id person.id
   json.phone_number person.phone_number
   json.fullname person.fullname

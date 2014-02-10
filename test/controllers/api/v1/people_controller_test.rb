@@ -42,7 +42,7 @@ class Api::V1::PeopleController::IndexTest < ActionController::TestCase
     api_login_user
     perform_request
 
-    assert_equal [people(:valid)], assigns(:people).to_a
+    assert_equal [people(:valid)], assigns(:collection).to_a
   end
 end
 
@@ -120,7 +120,7 @@ class Api::V1::PeopleController::CreateTest < ActionController::TestCase
 
     post :create, @base_params
 
-    assert_equal users(:john), assigns(:person).user
+    assert_equal users(:john), assigns(:instance).user
   end
 
   test 'renders the show template' do
