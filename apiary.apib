@@ -1,0 +1,468 @@
+HOST: http://api.ohmycall.com
+
+--- OhMyCall! ---
+---
+API Documentation for the [OhMyCall! Notification Service](http://www.ohmycall.com) that doesn't exist yet.
+
+### The Intent of the Project
+
+The goal is to build a simple, developer friendly, easy to configure emergency alert system for when things go wrong in mission critical systems. 
+
+For example, if a system performs a time sensitive action and someone needs to be notified if it fails, an email won't really work in the middle of the night. However, if their phone starts ringing and an automated voice tells when what went wrong, that's a different story.
+
+So, it works like this:
+
+1. Setup a situation and assign a call list (phone numbers)
+2. Get a URL to ping whenever that situation occurs
+3. When the URL is hit, phone calls get made to the people on the call list
+
+Simple.
+
+### Using the docs
+
+Our API documentation is powered by Apiary, a startup that is building an API documentation framework that's easy to read and understand. There are a few things worth knowing before you get started:
+
+* Every request is documented with a sample request showing a sample of the parameters that you can include in the request and the positive response that you will receive from the server. Click on the request header to see more information.
+* The documentation doesn't have support for displaying [Authentication](#authentication) yet. All requests require authentication, so you'll have to add it to the sample requests yourself.
+* Apiary provides a __mock API server__ that can be very helpful for understanding the output of a request. You can see the mock server API URL on the right hand side. You can also inspect your requests via the Inspector above. Again, the mock server doesn't support Authentication either, so you'll have to work around that.
+
+Please [contact us](mailto:jhubert@gmail.com) if you anything is confusing.
+
+### Using the API
+
+1. There are no global api resources. All requests are scoped to an authenticated user.
+2. In `POST` and `PUT` requests, all parameters are optional unless otherwise specified
+3. All responses are in JSON by default. To request XML just add `.xml` to the resource url.
+4. Blank fields are included as null instead of being omitted.
+5. All timestamps are returned in ISO 8601 format: `YYYY-MM-DDTHH:MM:SSZ`
+
+---
+
+--
+Authentication
+Access to the API is controlled by two types of authentication:
+
+### Basic Authentication
+
+The user's email address and password can be used to access the API, however, this should be used sparingly. The one time this access method is required is for generating API tokens.
+
+    curl -u "username" https://ohmycall.apiary.io/
+
+### Token Authentication
+
+API tokens can be generated programatically and are the preferred method of accessing the API. Once you have an API token, you can pass it in via a request header or a querystring parameter:
+
+    curl -H "Authorization: Token token=API-TOKEN" https://ohmycall.apiary.io/
+
+    curl https://ohmycall.apiary.io/?api_token=API-TOKEN
+--
+
+Request an API Token. HTTP Basic authentication required
+
+* `note` - _optional_ A note to keep track of what the token is for
+* `note_url` - _optional_ A URL for more information about the use of the token
+POST /authorizations
+{ "note": "optional note", "note_url": "https://optional/note/url" }
+< 201
+< Content-Type: application/json
+{
+    "id": 1,
+    "token": "x2vBHK-gtGFh3kom94aN3g",
+    "url": "https://api.ohmycall.com/authorizations/1",
+    "note": "optional note",
+    "note_url": "https://optional/note/url",
+    "created_at": "2012-10-01T12:24:45Z",
+    "updated_at": "2012-10-01T12:24:45Z"
+}
+
+Get the details of a single authorization
+GET /authorizations/1
+< 200
+< Content-Type: application/json
+{
+    "id": 1,
+    "token": "x2vBHK-gtGFh3kom94aN3g",
+    "url": "https://api.ohmycall.com/authorizations/1",
+    "note": "optional note",
+    "note_url": "https://optional/note/url",
+    "created_at": "2012-10-01T12:24:45Z",
+    "updated_at": "2012-10-01T12:24:45Z"
+}
+
+Revoke an authorization
+DELETE /authorizations/1
+< 204
+
+
+--
+Person
+Anyone who can be called when needed.
+
+### Properties
+
+* `phone_number` - __required__ The phone number to call
+* `fullname` - __optional__ Their name
+* `nickname` - __optional__ The name used to refer to them
+* `active` - __optional__ Whether or not they will be called for notifications. _default: true_
+
+### Calculated Properties
+
+* `url` - Their resource url
+* `response_count` - The number of times they have responded to a situation
+* `call_count` - The number of times they have been notified of a situation
+
+### Relationships
+
+* `situations` - The situations that they are on the [call list](#call_list) for
+
+### Multiple Phone Numbers
+
+Note that one real life person can be in the system as multiple people if they have different phone numbers to call. For example:
+
+<table>
+    <tr>
+        <th>phone_number</th>
+        <th>fullname</th>
+        <th>nickname</th>
+    </tr>
+    <tr>
+        <td>+1 (555) 123-4567</td>
+        <td>John Doe's Cell</td>
+        <td>John</td>
+    </tr>
+    <tr>
+        <td>+1 (555) 123-4567</td>
+        <td>John Doe's Home Number</td>
+        <td>John</td>
+    </tr>
+</table>
+
+--
+List everyone in the system
+GET /people
+< 200
+< Content-Type: application/json
+[
+  { "fullname": "Jack Sparrow", "phone_number":"+1 (555) 555-1234", "nickname": "Captain", "active": true, "url": "/people/15555551234", "response_count": 10, "call_count": 10, "situations": [...]  }
+]
+
+Show a specific person
+
+GET /people/15555551234
+< 200
+< Content-Type: application/json
+{ "fullname": "Jack Sparrow", "phone_number":"+1 (555) 555-1234", "nickname": "Captain", "active": true, "url": "/people/15555551234", "response_count": 10, "call_count": 10, "situations": [...]  }
+
+Adds a new person to the system.
+
+* `phone_number` - The phone number to call. Any number that can validate as a phone number is accepted. Formatting will be stripped. Country code of 1 is assumed if missing.
+* `fullname` - Their name
+* `nickname` - The name used to refer to them
+* `situation_ids` - An array or CSV list of situation ids that this person is on the [call list](#call_list) for
+POST /people
+> Content-Type: application/json
+{ "phone_number":"+1 (555) 555-1234", "fullname" : "Jack Sparrow", "nickname" : "Captain", "situation_ids" : '84928skdjsu27,283jsjhcvn93k' }
+< 201
+< Content-Type: application/json
+{ "phone_number":"+15555551234", "fullname" : "Jack Sparrow", "nickname" : "Captain", "situations" : [], "status": "created", "url": "/people/15555551234" }
+
+Updates a person in the system.
+
+* `fullname` - An alphanumeric string. Max 50 characters.
+* `nickname` - An alphanumeric string. Max 50 characters.
+* `situation_ids` - An array or CSV list of situation ids that this person is on call for. Invalid situation ids will be ignored.
+
+### Changing a phone number
+
+In order to change someone's phone number, just remove them and add them as a new person.
+PATCH /people/15555551234
+> Content-Type: application/json
+{ "nickname" : "Sparrow", "situation_ids" : '84928skdjsu27' }
+< 202
+
+
+Removes a person from the system.
+
+DELETE /people/15555551234
+< 202
+
+
+--
+Situation
+You know that thing when something goes wrong and someone needs to deal with it right away? Yeah, that's what this is.
+
+### Properties
+
+* `name` - The name used to refer to this situation
+* `description` - A description of what this situation is or when it might occur
+* `message` - The message to deliver when this situation occurs. _default: {{name}} has occured._
+* `notification_order` - The order in which the [call list](#call_list) is processed. _default: descending_
+    * _descending_ - One by one, from the top of the call list to the bottom
+    * _random_ - Pick one person at a time, at random, until someone responds
+    * _everyone_ - Notify everyone at the same time, until someone responds
+* `active` - Whether or not people should be notified when this situation occurs. If active is false then triggers will create an occurace but no one will be notified. _default: true_
+
+### Calculated Properties
+
+* `key` - The unique key for this situation. Used for triggering an occurance of the situation.
+* `url` - The resource url for this situation
+* `trigger_url` - The resource url used to trigger an occurance of this situation
+* `trigger_count` - The number of times that this situation has been triggered
+
+### Relationships
+
+* `people` - The people that are on the [call list](#call_list) for this situation and the order in which they are notified
+* `occurances` - The times this situation has occured
+
+## Triggering A Situation
+
+Every situation has a unique _trigger_ url that can be used to trigger the situation. The trigger URL does not require authentication and it's designed to be as easy as possible for adding to your code.
+
+This trigger url can be regenerated if it somehow ends up in malicious hands. See the [Trigger](#trigger) endpoint for more details.
+
+--
+
+List all of the situations
+GET /situations
+< 200
+< Content-Type: application/json
+[
+    { "key": "74jsdu19sla04j", "name":"The Boat Has Sunk", "description": "Something has gone very, very wrong and we no longer have a boat", "active": true, "url": "/situations/74jsdu19sla04j", "trigger_count": 10, "people": [...]  }
+]
+
+Show a specific situation
+GET /situations/{id}
+< 200
+< Content-Type: application/json
+{ "key": "74jsdu19sla04j", "name":"The Boat Has Sunk", "description": "Something has gone very, very wrong and we no longer have a boat", "active": true, "url": "/situations/74jsdu19sla04j", "trigger_count": 10, "people": [...]  }
+
+
+Add a new situation
+
+### Acceptable Parameters
+
+* `name` - __required__ An alphanumeric string. Max 50 characters.
+* `description` - An alphanumeric string. Max 255 characters.
+* `message` - An alphanumeric string. Max 30 words. Longer strings will be concatenated.
+* `notification_order` - A string matching one of the following: descending, random, everyone
+* `active` - Boolean. Accepts boolean or numeric values. `true` or 1, `false` or 0
+
+POST /situations
+> Content-Type: application/json
+{ "name":"The Boat Has Sunk", "description": "Something has gone very, very wrong and we no longer have a boat", "notification_order": "random", "people": [...] }
+< 201
+< Content-Type: application/json
+{ "status": "created", "url": "/situations/74jsdu19sla04j" }
+
+Update a situation
+
+### Acceptable Parameters
+
+* `name` - An alphanumeric string. Max 50 characters.
+* `description` - An alphanumeric string. Max 255 characters.
+* `message` - An alphanumeric string. Max 30 words. Longer strings will be concatenated.
+* `notification_order` - A string matching one of the following: descending, random, everyone
+* `active` - Boolean. Accepts boolean or numeric values. `true` or 1, `false` or 0
+
+PATCH /situations/74jsdu19sla04j
+> Content-Type: application/json
+{ "nickname" : "Sparrow", "situation_ids" : '84928skdjsu27' }
+< 202
+< Content-Type: application/json
+{ "status": "updated", "url": "/people/15555551234" }
+
+
+Completely removes a situation from the system.
+
+DELETE /situations/84928skdjsu27
+< 202
+
+
+--
+Trigger
+
+This is how your system tells us that something bad has happened.
+--
+
+Trigger the situation
+
+Any post request to the trigger url for a situation will create a new occurance of that situation. No parameters are required.
+
+However, if you have specified replacement variables in the situation message, the values can be passed in as parameters to the trigger URL. For example, if the message is:
+
+    A server error has occured: {{error}}
+
+Then you could include an "error" parameter like so ( assuming the trigger URL is /t/829jdkxd830sjflsdju4):
+
+    { "error": "The database server is not responding" }
+
+And the call list will be told:
+
+    A server error has occured: The database server is not responding
+
+Easy.
+POST /{trigger_url}
+> Content-Type: application/json
+{ "message" : "Unable to connect to the database" }
+< 202
+
+
+--
+Call List
+You know when you're on _Who Wants To Be A Millionaire_ and you have a list of people that you can call if you get a question that you can't figure out? Each [person](#person) you can call in a specified [situation](#situation) is a on the call list.
+
+In other words, these are the [phone numbers](#person) that will be called about a specific [situation](#situation).
+
+### Calculated Properties
+
+* `url` - The resource url for this call list
+* `situation_url` - The resource url for the associated situation
+
+### Relationships
+
+* `situation` - The situation that this responder will respond to
+
+--
+
+Get the people on the call list
+
+GET /situations/{situation_id}/call_list
+< 200
+< Content-Type: application/json
+[
+  { "phone_number": "+1 (555) 555-1234" }
+]
+
+Update the entire call list
+
+__NOTE__: This will replace the entire call list
+
+### Acceptable Parameters
+
+* `phone_numbers` - An array of valid phone numbers, in the desired order
+
+POST /situations/{situation_id}/responders
+> Content-Type: application/json
+{ "phone_numbers" : ['+1 (555) 555-9876', '+1 (555) 555-1234'] }
+< 202
+< Content-Type: application/json
+{ "status": "updated", "url": "/people/{situation_id}/responders", "responders": [...] }
+
+Add one or more new numbers to the end of the call list
+
+### Acceptable Parameters
+
+* `phone_numbers` - __required__ An array or CSV list of valid phone numbers. Unseen phone numbers will result in a new [person](#person) being added.
+
+PATCH /situations/{situation_id}/call_list
+> Content-Type: application/json
+{ "phone_numbers":"+1 (555) 555-9876" }
+< 201
+< Content-Type: application/json
+{ "status": "created", "url": "/situations/{situation_id}/15559876" }
+
+Remove a phone number from the call list.
+
+DELETE /situations/{situation_id}/call_list/{phone_number}
+< 202
+
+
+--
+Occurance
+The time that bad thing happened.
+
+When you [trigger a situation](#situation), OhMyCall kicks into gear and notifies the [people](#person) on the [call list](#call_list). After the occurance has been triggered, you can find details about what happened here. The only way to create an occurance is by [triggering a situation](#situation).
+
+### Attributes
+
+* `created_at` - The time this occurance happened
+* `situation_id` - The id of the situation that occured
+* `log` - The log of what happened when this occurance was triggered
+* `person` - The person that responded to the notifications
+* `responded_at` - The time that this occuance was responded to
+* `status` - The current status of the occurance:
+    * _open_ - Nothing has been done about this yet
+    * _notifying_ - The call list is currently being contacted
+    * _closed_ - This occurance was responded to
+    * _failed_ - No one responded to this occurance
+    * _ignored_ - The situation is currently set to be ignored
+--
+
+List all occurances of a situation
+GET /situations/{situation_id}/occurances
+< 200
+< Content-Type: application/json
+[
+  { "key": "1234", "created_at": "YYYY-MM-DDTHH:MM:SSZ", "situation":{}, "situation_id": "74jsdu19sla04j", "person": {}, "url": "/situations/74jsdu19sla04j/occurances/1234", "responded_at": "YYYY-MM-DDTHH:MM:SSZ", "status": "closed" }
+]
+
+Get a specific occurance
+GET /situations/{situation_id}/occurances/{id}
+< 200
+< Content-Type: application/json
+{ "key": "1234", "created_at": "YYYY-MM-DDTHH:MM:SSZ", "situation":{}, "situation_id": "74jsdu19sla04j", "log": "...", "person": {}, "url": "/situations/74jsdu19sla04j/occurances/1234", "responded_at": "YYYY-MM-DDTHH:MM:SSZ", "status": "closed" }
+
+
+
+--
+Error Messages
+There are two different types of client errors and three different types of data errors
+--
+
+ * Not providing valid Authentication information will result in a `401 Authorization Required` response.
+ * Accessing a resource that is not available will result in a `404 Not Found` response.
+ * In some cases, requests that require authentication may return `404` instead of `403`. This helps to prevent discovery of private items via the API.
+GET /example-path
+< 401
+< Content-Type: application/json
+{"message":"Please check authentication token."}
++++++
+< 404
+< Content-Type: application/json
+{"message":"The resource requested does not exist."}
+
+ * Sending invalid JSON will result in a `400 Bad Request` response.
+ * Sending the wrong type of JSON values will result in a `400 Bad Request` response.
+ * Sending invalid fields will result in a `422 Unprocessable Entity` response.
+POST /example-path
+< 400
+< Content-Type: application/json
+{"message":"Problems parsing JSON"}
++++++
+< 400
+< Content-Type: application/json
+{"message":"Body should be a JSON Hash"}
++++++
+< 422
+< Content-Type: application/json
+{
+    "message": "Data Validation Failed",
+    "errors": [
+        {
+            "resource": "Issue",
+            "field": "title",
+            "code": "missing_field"
+        }
+    ]
+}
+
+
+--
+Pagination
+Requests that return multiple items will be paginated to __30__ items by default.
+You can specify further pages with the `?page` parameter.
+For some resources, you can also set a custom page size up to __100__ with the `?per_page` parameter.
+Note that for technical reasons not all endpoints respect the `?per_page` parameter.
+
+The pagination info is included in the `Link` header. It is important to follow these Link header values instead of constructing your own URLs. In some cases, pagination is based on timestamps instead of numeric pages.
+
+    Link: <https://ohmycall.apiary.io/api/imports?page=2&per_page=10>; rel="next",
+    <https://ohmycall.apiary.io/api/imports?page=20&per_page=10>; rel="last"
+
+The possible rel values are:
+
+* `next` - Shows the URL of the immediate next page of results.
+* `last` - Shows the URL of the last page of results.
+* `first` - Shows the URL of the first page of results.
+* `prev` - Shows the URL of the immediate previous page of results.
+--
